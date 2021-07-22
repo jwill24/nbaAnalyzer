@@ -1,4 +1,5 @@
 # Create player teams dictionary dynamically
+# Was player active?
 
 import sys
 import requests
@@ -35,13 +36,19 @@ def getOfficials(html):
 	block = html[loc-13:loc+300]
 	soup = BeautifulSoup(block, 'html5lib')
 	string = soup.find('div').getText()[11:]
-	return string.split(',')
+	s = string.split(',')
+	s[1], s[2] = s[1].strip(), s[2].strip()
+	return s
 
 #--------------------------------
 
 
 # Dictionary for Chris Paul's teams over the years
 teams = {
+	2008 : 'NOH',
+	2009 : 'NOH',
+	2011 : 'NOH',
+	2012 : 'LAC',
 	2013 : 'LAC',
 	2014 : 'LAC',
 	2015 : 'LAC',
@@ -64,9 +71,12 @@ losses = 0
 # Get the schedule
 for year in teams.keys():
 	print(year)
+	#if year < 2013: schedule_url = 'https://www.basketball-reference.com/players/p/paulch01/gamelog/%i' %(year)
 	schedule_url = 'https://www.basketball-reference.com/teams/%s/%i_games.html' % (teams[year], year)
 	html_schedule = requests.get(schedule_url).content
 	df_schedule = pd.read_html(html_schedule)
+
+
 
 	try: df_schedule[1]
 	except: 
@@ -101,6 +111,7 @@ for year in teams.keys():
 		# Is Scott Foster a ref?
 		html_game = str(requests.get(game_url).content)
 		officials = getOfficials(html_game)
+
 
 		if 'Scott Foster' in officials: 
 			foster += 1
